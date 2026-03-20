@@ -1,7 +1,9 @@
 #[compute]
 #version 450
 
-#define FORWARD_COLLISION 1
+#define FOUND_OCCLUDED 1
+#define FOUND_UNOCCLUDED 2
+#define GOLDEN_ANGLE 2.39996323
 
 struct Boid {
     vec3 position;
@@ -41,8 +43,8 @@ layout(push_constant, std430) uniform Params {
     float svo_size;
     float svo_max_depth;
     float sensor_length;
-    float padding1;
-    float padding2;
+    float sensor_count;
+    float collision_weight;
     float padding3;
 } params;
 
@@ -113,13 +115,13 @@ void main() {
             continue;
         }
         vec3 offset = boids[b].position.xyz - position;
-        float sqr_dst = dot(offset, offset);
-        if (sqr_dst < params.view_radius * params.view_radius) {
+        float distance_sqr = dot(offset, offset);
+        if (distance_sqr < params.view_radius * params.view_radius) {
             num_mates++;
             flock_heading += boids[b].forward.xyz;
             flock_center += boids[b].position.xyz;
-            if (sqr_dst < params.avoid_radius * params.avoid_radius) {
-                avoidance -= offset / max(sqr_dst, 0.0001);
+            if (distance_sqr < params.avoid_radius * params.avoid_radius) {
+                avoidance -= offset / max(distance_sqr, 0.0001);
             }
         }
     }
@@ -133,9 +135,32 @@ void main() {
         acceleration += steer_towards(avoidance, velocity) * params.separate_weight;
     }
     if (is_occluded(position + forward * params.sensor_length)) {
-        boids[id].flags |= FORWARD_COLLISION;
-
-        // TODO: here
+        boids[id].flags |= FOUND_OCCLUDED;
+        vec3 up;
+        if (abs(forward.y) < 0.99) {
+            up = vec3(0.0, 1.0, 0.0);
+        } else {
+            up = vec3(1.0, 0.0, 0.0);
+        }
+        vec3 right = normalize(cross(up, forward));
+        up = cross(forward, right);
+        vec3 direction = forward;
+        bool found_unoccluded = false;
+        for (int i = 0; i < int(params.sensor_count); i++) {
+            float t = float(i) / float(params.sensor_count - 1);
+            float cos_theta = 1.0 - 2.0 * t;
+            float sin_theta = sqrt(max(0.0, 1.0 - cos_theta * cos_theta));
+            float phi = float(i) * GOLDEN_ANGLE;
+            direction = normalize(right * cos(phi) * sin_theta + up * sin(phi) * sin_theta + forward * cos_theta);
+            if (!is_occluded(position + direction * params.sensor_length)) {
+                found_unoccluded = true;
+                break;
+            }
+        }
+        if (found_unoccluded) {
+            acceleration += steer_towards(direction, velocity) * params.collision_weight;
+            boids[id].flags |= FOUND_UNOCCLUDED;
+        }
     }
     velocity += acceleration * params.delta_time;
     float speed = length(velocity);

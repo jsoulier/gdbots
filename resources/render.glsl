@@ -1,7 +1,8 @@
 #[vertex]
 #version 450
 
-#define FORWARD_COLLISION 1
+#define FOUND_OCCLUDED 1
+#define FOUND_UNOCCLUDED 2
 
 struct Boid {
     vec3 position;
@@ -20,9 +21,9 @@ layout(location = 0) in vec3 in_position;
 layout(set = 0, binding = 0, std430) readonly buffer BoidBuffer {
 	Boid boids[];
 };
-layout(push_constant, std430) uniform PushConstants {
+layout(push_constant, std430) uniform Params {
 	mat4 view_proj;
-} push_constants;
+} params;
 layout(location = 0) out vec3 out_color;
 
 mat3 basis_from_forward(vec3 forward) {
@@ -43,11 +44,11 @@ void main() {
 	vec3 position = boid.position.xyz;
 	vec3 forward = boid.forward.xyz;
 	mat3 basis = basis_from_forward(forward);
-	gl_Position = push_constants.view_proj * vec4(position + basis * in_position, 1.0);
-	if (bool(boid.flags & FORWARD_COLLISION)) {
+	gl_Position = params.view_proj * vec4(position + basis * in_position, 1.0);
+	if (bool(boid.flags & FOUND_OCCLUDED) && !bool(boid.flags & FOUND_UNOCCLUDED)) {
 		out_color = vec3(1.0, 0.0, 0.0);
 	} else {
-		out_color = vec3(1.0, 1.0, 1.0);
+		out_color = mix(vec3(1.0, 1.0, 1.0), vec3(0.0, 0.0, 1.0), length(boid.velocity) * 0.4);
 	}
 }
 

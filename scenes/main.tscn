@@ -4,10 +4,9 @@
 [ext_resource type="PackedScene" uid="uid://pfn1xhfre3mw" path="res://scenes/svo_visualizer.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://b7rpuc1pgbpor" path="res://scenes/camera.tscn" id="4_jyhfs"]
 [ext_resource type="PackedScene" uid="uid://cw1jn6vdb6gsd" path="res://scenes/boids.tscn" id="4_tbgi4"]
+[ext_resource type="Material" uid="uid://dtt4qifso8woh" path="res://resources/transparent.tres" id="4_tefeu"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_0wfyh"]
-
-[sub_resource type="BoxMesh" id="BoxMesh_sugp2"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_jyhfs"]
 
@@ -32,19 +31,13 @@ max_depth = 10
 color = Color(0.2, 0.8, 0.4, 1)
 
 [node name="Camera" parent="." unique_id=1444014672 instance=ExtResource("4_jyhfs")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 25, 5, 0)
 
 [node name="Geometry" type="Node3D" parent="." unique_id=1485616743]
 
 [node name="Floor" type="MeshInstance3D" parent="Geometry" unique_id=1245717812]
-transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, -0.5, 0)
+transform = Transform3D(10, 0, 0, 0, 5, 0, 0, 0, 40, 0, -2.5, 0)
 mesh = SubResource("BoxMesh_0wfyh")
-
-[node name="Ceiling" type="MeshInstance3D" parent="Geometry" unique_id=886801052]
-transform = Transform3D(10, 0, 0, 0, 0.1, 0, 0, 0, 10, 0, 10, 0)
-visible = false
-cast_shadow = 0
-mesh = SubResource("BoxMesh_sugp2")
 
 [node name="Obstacle1" type="MeshInstance3D" parent="Geometry" unique_id=692124719]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4303741, 3.9187331, -1.196156)
@@ -63,33 +56,68 @@ transform = Transform3D(2.211626, -0.5217261, 0.60423374, 2.2231684, 0.7918633, 
 mesh = SubResource("BoxMesh_jyhfs")
 
 [node name="Wall1" type="MeshInstance3D" parent="Geometry" unique_id=995212990]
-transform = Transform3D(0.1, 0, 0, 0, 10, 0, 0, 0, 10, -5, 5, 0)
-visible = false
+transform = Transform3D(5, 0, 0, 0, 15, 0, 0, 0, 40, -7, 5, 0)
 cast_shadow = 0
 mesh = SubResource("BoxMesh_tbgi4")
+surface_material_override/0 = ExtResource("4_tefeu")
 
-[node name="Wall2" type="MeshInstance3D" parent="Geometry" unique_id=1118737150]
-transform = Transform3D(0.1, 0, 0, 0, 10, 0, 0, 0, 10, 5, 5, 0)
-visible = false
+[node name="Wall2" type="MeshInstance3D" parent="Geometry" unique_id=1002387532]
+transform = Transform3D(5, 0, 0, 0, 15, 0, 0, 0, 40, 7, 5, 0)
 cast_shadow = 0
 mesh = SubResource("BoxMesh_tbgi4")
+surface_material_override/0 = ExtResource("4_tefeu")
 
-[node name="Wall3" type="MeshInstance3D" parent="Geometry" unique_id=1141076367]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 0.1, 0, 5, -5)
+[node name="Wall3" type="MeshInstance3D" parent="Geometry" unique_id=1016659546]
+transform = Transform3D(10, 0, 0, 0, 5, 0, 0, 0, 40, 0, 12.5, 0)
 cast_shadow = 0
-mesh = SubResource("BoxMesh_tbgi4")
+mesh = SubResource("BoxMesh_0wfyh")
+surface_material_override/0 = ExtResource("4_tefeu")
 
 [node name="Wall4" type="MeshInstance3D" parent="Geometry" unique_id=1484909327]
-transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 0.1, 0, 5, 5)
-visible = false
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 5, 0, 5, 22)
 cast_shadow = 0
 mesh = SubResource("BoxMesh_tbgi4")
+surface_material_override/0 = ExtResource("4_tefeu")
+
+[node name="Wall5" type="MeshInstance3D" parent="Geometry" unique_id=1754467027]
+transform = Transform3D(15, 0, 0, 0, 15, 0, 0, 0, 5, 0, 5, -22)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tbgi4")
+surface_material_override/0 = ExtResource("4_tefeu")
+
+[node name="Obstacle7" type="MeshInstance3D" parent="Geometry" unique_id=1138141439]
+transform = Transform3D(10.232, 0, 0, 0, 4, 0, 0, 0, 1.013, -0.13636373, 1.437464, -5.48437)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle8" type="MeshInstance3D" parent="Geometry" unique_id=882143494]
+transform = Transform3D(10.232, 0, 0, 0, 4, 0, 0, 0, 1.013, -0.136, 10, -5.484)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle9" type="MeshInstance3D" parent="Geometry" unique_id=1589331990]
+transform = Transform3D(4, 0, 0, 0, 10, 0, 0, 0, 1.013, -3.241387, 6.0443316, -5.484)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle10" type="MeshInstance3D" parent="Geometry" unique_id=1356647929]
+transform = Transform3D(4, 0, 0, 0, 10, 0, 0, 0, 1.013, 2.9623728, 6.0443316, -5.484)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle5" type="MeshInstance3D" parent="Geometry" unique_id=1289911098]
+transform = Transform3D(4.195468, 1.3557348, 0.49932763, -1.4514991, 3.9186668, 1.4432755, -3.3076553e-08, -1.621681, 3.9050045, 1.1274705, 5.917026, 14.50773)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle6" type="MeshInstance3D" parent="Geometry" unique_id=637618561]
+transform = Transform3D(0.79354495, 0.51238096, 0.32825604, -0.5967453, 0.5496951, 0.58457696, 0.119085364, -0.65977335, 0.7419688, 2.1434004, 7.474484, 5.395865)
+mesh = SubResource("BoxMesh_jyhfs")
 
 [node name="Boids" parent="." unique_id=1031925725 node_paths=PackedStringArray("svo") instance=ExtResource("4_tbgi4")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 7, 0)
 svo = NodePath("../Svo")
-boid_count = 1000
-max_speed = 0.1
+boid_count = 10000
+align_weight = 2.0
+cohesion_weight = 1.75
+separate_weight = 2.5
+forward_weight = 1.0
+sensor_length = 1.0
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2131311210]
 transform = Transform3D(0.49999994, -0.43301272, 0.74999994, 0, 0.8660254, 0.49999997, -0.8660254, -0.24999999, 0.43301263, 10, 5, 0)

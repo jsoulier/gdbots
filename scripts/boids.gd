@@ -15,6 +15,8 @@ static var UPDATE_SHADER: RDShaderFile = preload("res://resources/update.glsl")
 @export var separate_weight: float = 1.5
 @export var forward_weight: float = 0.5
 @export var sensor_length: float = 0.2
+@export_range(1, 100) var sensor_count: int = 50
+@export var collision_weight: float = 10.0
 
 var _device: RenderingDevice = null
 var _boid_buffer: RID
@@ -108,8 +110,8 @@ func _process(delta: float) -> void:
 	push[14] = float(_svo_metadata.root_size)
 	push[15] = float(_svo_metadata.max_depth)
 	push[16] = sensor_length
-	push[17] = 0.0
-	push[18] = 0.0
+	push[17] = float(sensor_count)
+	push[18] = collision_weight
 	push[19] = 0.0
 	@warning_ignore("integer_division")
 	var group_count = (boid_count + 1023) / 1024

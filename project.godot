@@ -15,9 +15,19 @@ run/main_scene="uid://ck8tllsqxi8mn"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
+[debug]
+
+settings/stdout/print_fps=true
+
 [debug_draw_3d]
 
 settings/addon_root_folder="res://addons/debug_draw_3d"
+settings/updates/check_for_updates=false
+
+[display]
+
+window/size/viewport_width=1600
+window/size/viewport_height=900
 
 [input]
 
@@ -64,3 +74,4 @@ unfocus={
 [rendering]
 
 rendering_device/driver.windows="d3d12"
+anti_aliasing/quality/screen_space_aa=1
