@@ -4,3 +4,7 @@
 
 [node name="SvoVisualizer" type="Node3D" unique_id=978600978]
 script = ExtResource("1_f0g0b")
+binary_path = null
+meta_path = null
+max_depth = null
+color = null

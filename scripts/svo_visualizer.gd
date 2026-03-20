@@ -1,13 +1,17 @@
 extends Node3D
 
-@export_file("*.bin") var binary_path: String = "res://data/svo.bin"
-@export_file("*.json") var meta_path: String = "res://data/svo.json"
+@export var svo: SVO = null
 @export_range(0, 20) var max_depth: int = 10
 @export var color: Color = Color(0.2, 0.8, 0.4, 1.0)
 
 var _lines : Array = []
 
 func _ready() -> void:
+	if svo == null:
+		push_error("Missing SVO")
+		return
+	var binary_path: String = svo.out_data.path_join("svo.bin")
+	var meta_path: String = svo.out_data.path_join("svo.json")
 	var meta_file: FileAccess = FileAccess.open(meta_path, FileAccess.READ)
 	if meta_file == null:
 		push_error("Failed to open SVO %s" % meta_path)
@@ -45,18 +49,11 @@ func _ready() -> void:
 				half if (slot & 2) else 0.0,
 				half if (slot & 4) else 0.0)
 			if child_index == -2:
-				_cache_box(cmin, cmin + Vector3(half, half, half))
+				_add_box(cmin, cmin + Vector3(half, half, half))
 			elif child_index >= 0 and depth + 1 <= _max_depth:
 				stack.push_back([child_index, cmin, half, depth + 1])
 
-func _process(_delta: float) -> void:
-	if not visible:
-		return
-	@warning_ignore("integer_division")
-	for i in range(_lines.size() / 2):
-		DebugDraw3D.draw_line(_lines[i * 2 + 0], _lines[i * 2 + 1], color)
-
-func _cache_box(bmin: Vector3, bmax: Vector3) -> void:
+func _add_box(bmin: Vector3, bmax: Vector3) -> void:
 	var cell: Array[Vector3] = [
 		Vector3(bmin.x, bmin.y, bmin.z),
 		Vector3(bmax.x, bmin.y, bmin.z),
@@ -75,3 +72,10 @@ func _cache_box(bmin: Vector3, bmax: Vector3) -> void:
 	for edge in EDGES:
 		_lines.append(cell[edge[0]])
 		_lines.append(cell[edge[1]])
+
+func _process(_delta: float) -> void:
+	if not visible:
+		return
+	@warning_ignore("integer_division")
+	for i in range(_lines.size() / 2):
+		DebugDraw3D.draw_line(_lines[i * 2 + 0], _lines[i * 2 + 1], color)

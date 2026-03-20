@@ -1,9 +1,10 @@
-@tool extends Node3D
+@tool class_name SVO extends Node3D
 
 @export var scene: Node3D = null
 @export_range(1, 12) var max_depth: int = 7
 @export_dir var out_data: String = "res://data/"
-@export var run_build: bool = false :
+@export var run_build_on_ready: bool = false
+@export var run_build: bool = false:
 	set(v):
 		if v and Engine.is_editor_hint():
 			run_build = false
@@ -12,6 +13,10 @@
 var _nodes: Array = []
 var _origin: Vector3 = Vector3.ZERO
 var _size: float = 1.0
+
+func _ready() -> void:
+	if run_build_on_ready:
+		_run_build()
 
 func _run_build() -> void:
 	print("Building SVO for %s" % scene.name)
@@ -39,7 +44,8 @@ func _run_build() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path(out_data))
 	_export_binary()
 	_export_meta()
-	EditorInterface.get_resource_filesystem().scan()
+	if Engine.is_editor_hint():
+		EditorInterface.get_resource_filesystem().scan()
 	print("Built SVO for %s" % scene.name)
 
 func _collect_aabbs(node: Node, xform: Transform3D, out: Array[AABB]) -> void:

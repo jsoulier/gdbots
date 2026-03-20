@@ -3,26 +3,94 @@
 [ext_resource type="PackedScene" uid="uid://xh1ak7p243yj" path="res://scenes/svo.tscn" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://pfn1xhfre3mw" path="res://scenes/svo_visualizer.tscn" id="3_sugp2"]
 [ext_resource type="PackedScene" uid="uid://b7rpuc1pgbpor" path="res://scenes/camera.tscn" id="4_jyhfs"]
+[ext_resource type="PackedScene" uid="uid://cw1jn6vdb6gsd" path="res://scenes/boids.tscn" id="4_tbgi4"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_0wfyh"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_sugp2"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_jyhfs"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_tbgi4"]
+
+[sub_resource type="Environment" id="Environment_sugp2"]
+
+[sub_resource type="Compositor" id="Compositor_jyhfs"]
+compositor_effects = Array[CompositorEffect]([null])
 
 [node name="Main" type="Node3D" unique_id=877021443]
 
 [node name="Svo" parent="." unique_id=1499338561 node_paths=PackedStringArray("scene") instance=ExtResource("2_0wfyh")]
 scene = NodePath("..")
 max_depth = 6
+run_build_on_ready = true
 
-[node name="SvoVisualizer" parent="." unique_id=978600978 instance=ExtResource("3_sugp2")]
-
-[node name="Ground" type="MeshInstance3D" parent="." unique_id=1245717812]
-transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, -0.5, 0)
-mesh = SubResource("BoxMesh_0wfyh")
-
-[node name="Obstacle" type="MeshInstance3D" parent="." unique_id=886801052]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1959689, 0)
-mesh = SubResource("BoxMesh_sugp2")
+[node name="SvoVisualizer" parent="." unique_id=978600978 node_paths=PackedStringArray("svo") instance=ExtResource("3_sugp2")]
+svo = NodePath("../Svo")
+max_depth = 10
+color = Color(0.2, 0.8, 0.4, 1)
 
 [node name="Camera" parent="." unique_id=1444014672 instance=ExtResource("4_jyhfs")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 10)
+
+[node name="Geometry" type="Node3D" parent="." unique_id=1485616743]
+
+[node name="Floor" type="MeshInstance3D" parent="Geometry" unique_id=1245717812]
+transform = Transform3D(10, 0, 0, 0, 1, 0, 0, 0, 10, 0, -0.5, 0)
+mesh = SubResource("BoxMesh_0wfyh")
+
+[node name="Ceiling" type="MeshInstance3D" parent="Geometry" unique_id=886801052]
+transform = Transform3D(10, 0, 0, 0, 0.1, 0, 0, 0, 10, 0, 10, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("BoxMesh_sugp2")
+
+[node name="Obstacle1" type="MeshInstance3D" parent="Geometry" unique_id=692124719]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.4303741, 3.9187331, -1.196156)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle2" type="MeshInstance3D" parent="Geometry" unique_id=863984232]
+transform = Transform3D(0.9450402, 0.30449563, 0.11908539, -0.326954, 0.8801257, 0.3442089, -7.450581e-09, -0.3642267, 0.9313103, -2.508591, 2.081411, 2.3346865)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle3" type="MeshInstance3D" parent="Geometry" unique_id=387296222]
+transform = Transform3D(2.6214452, 0, -0.73918456, 0, 1, 0, 2.8770947, 0, 0.67350286, 2.9003816, 2.8058147, 4.730686)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Obstacle4" type="MeshInstance3D" parent="Geometry" unique_id=1412138303]
+transform = Transform3D(2.211626, -0.5217261, 0.60423374, 2.2231684, 0.7918633, 0.08033222, -1.9109887, 0.31741813, 0.7927473, 3.4733908, 6.3357005, -1.2623622)
+mesh = SubResource("BoxMesh_jyhfs")
+
+[node name="Wall1" type="MeshInstance3D" parent="Geometry" unique_id=995212990]
+transform = Transform3D(0.1, 0, 0, 0, 10, 0, 0, 0, 10, -5, 5, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tbgi4")
+
+[node name="Wall2" type="MeshInstance3D" parent="Geometry" unique_id=1118737150]
+transform = Transform3D(0.1, 0, 0, 0, 10, 0, 0, 0, 10, 5, 5, 0)
+visible = false
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tbgi4")
+
+[node name="Wall3" type="MeshInstance3D" parent="Geometry" unique_id=1141076367]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 0.1, 0, 5, -5)
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tbgi4")
+
+[node name="Wall4" type="MeshInstance3D" parent="Geometry" unique_id=1484909327]
+transform = Transform3D(10, 0, 0, 0, 10, 0, 0, 0, 0.1, 0, 5, 5)
+visible = false
+cast_shadow = 0
+mesh = SubResource("BoxMesh_tbgi4")
+
+[node name="Boids" parent="." unique_id=1031925725 instance=ExtResource("4_tbgi4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2819085, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=2131311210]
+transform = Transform3D(-4.3711385e-08, -0.5, 0.8660253, 0, 0.8660254, 0.49999997, -0.99999994, 2.1855694e-08, -3.785517e-08, 10, 5, 0)
+shadow_enabled = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=80547337]
+environment = SubResource("Environment_sugp2")
+compositor = SubResource("Compositor_jyhfs")
