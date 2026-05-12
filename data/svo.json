@@ -1,6 +1,6 @@
 {
-	"max_depth": 6,
-	"node_count": 3428,
+	"max_build_depth": 7,
+	"node_count": 14634,
 	"root_min_x": -9.5959997177124,
 	"root_min_y": -5.10099983215332,
 	"root_min_z": -24.746000289917,

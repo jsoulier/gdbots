@@ -5,7 +5,7 @@ static var SOLID: int = -2
 static var DEBUG_COLOR: Color = Color(0.2, 0.8, 0.4, 1.0)
 
 @export var scene: Node3D = null
-@export_range(1, 12) var max_depth: int = 7
+@export_range(1, 12) var max_build_depth: int = 7
 @export_range(1, 12) var debug_depth: int = 10
 @export_dir var out_data: String = "res://data/"
 
@@ -104,7 +104,7 @@ func _subdivide(aabbs: Array[AABB], index: int, _min: Vector3, size: float, dept
 			continue
 		if _aabbs.is_empty():
 			continue
-		if depth == max_depth - 1:
+		if depth == max_build_depth - 1:
 			_nodes[index][slot] = SOLID
 			continue
 		var child_index: int = _new_node()
@@ -134,7 +134,7 @@ func _export_metadata() -> void:
 		"root_min_y": _origin.y,
 		"root_min_z": _origin.z,
 		"root_size": _size,
-		"max_depth": max_depth,
+		"max_build_depth": max_build_depth,
 		"node_count": _nodes.size(),
 	}
 	var path: String = ProjectSettings.globalize_path(out_data.path_join("svo.json"))
@@ -145,32 +145,41 @@ func _export_metadata() -> void:
 	file.store_string(JSON.stringify(metadata, "\t"))
 	file.close()
 
+func get_svo_binary() -> PackedByteArray:
+	var path: String = out_data.path_join("svo.bin")
+	if not FileAccess.file_exists(path):
+		return PackedByteArray()
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return PackedByteArray()
+	var data: PackedByteArray = file.get_buffer(file.get_length())
+	file.close()
+	return data
+
+func get_svo_metadata() -> Dictionary:
+	var path: String = out_data.path_join("svo.json")
+	if not FileAccess.file_exists(path):
+		return {}
+	var file: FileAccess = FileAccess.open(path, FileAccess.READ)
+	if file == null:
+		return {}
+	var content: String = file.get_as_text()
+	file.close()
+	return JSON.parse_string(content)
+
 func _get_debug_lines() -> void:
-	var binary_path: String = out_data.path_join("svo.bin")
-	var metadata_path: String = out_data.path_join("svo.json")
-	if not FileAccess.file_exists(binary_path) or not FileAccess.file_exists(metadata_path):
+	var metadata: Dictionary = get_svo_metadata()
+	if metadata.is_empty():
 		return
-	var metadata_file: FileAccess = FileAccess.open(metadata_path, FileAccess.READ)
-	if metadata_file == null:
-		push_error("Failed to open SVO %s" % metadata_path)
+	var bytes: PackedByteArray = get_svo_binary()
+	if bytes.is_empty():
 		return
-	var metadata: Dictionary = JSON.parse_string(metadata_file.get_as_text())
-	metadata_file.close()
 	var root_min: Vector3 = Vector3(metadata.root_min_x, metadata.root_min_y, metadata.root_min_z)
 	var root_size: float = float(metadata.root_size)
-	var _max_depth: int = int(metadata.max_depth)
-	var node_count: int = int(metadata.node_count)
-	var binary_file: FileAccess = FileAccess.open(binary_path, FileAccess.READ)
-	if binary_file == null:
-		push_error("Failed to open SVO %s" % binary_path)
-		return
-	var nodes: PackedInt32Array = PackedInt32Array()
-	nodes.resize(node_count * 8)
-	for i in range(nodes.size()):
-		nodes[i] = binary_file.get_32()
-	binary_file.close()
-	_debug_lines.resize(_max_depth + 1)
-	for depth in range(_max_depth + 1):
+	var max_depth: int = int(metadata.max_build_depth)
+	var nodes: PackedInt32Array = bytes.to_int32_array()
+	_debug_lines.resize(max_depth + 1)
+	for depth in range(max_depth + 1):
 		_debug_lines[depth] = []
 	var stack: Array = [[0, root_min, root_size, 0]]
 	while not stack.is_empty():
@@ -191,7 +200,7 @@ func _get_debug_lines() -> void:
 				half if (slot & 2) else 0.0,
 				half if (slot & 4) else 0.0)
 			_add_debug_box(child_min, child_min + Vector3(half, half, half), depth + 1)
-			if child_index != SOLID and depth + 1 < _max_depth:
+			if child_index != SOLID and depth + 1 < max_depth:
 				stack.push_back([child_index, child_min, half, depth + 1])
 
 func _add_debug_box(bmin: Vector3, bmax: Vector3, depth: int) -> void:

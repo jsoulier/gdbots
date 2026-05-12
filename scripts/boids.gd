@@ -47,20 +47,14 @@ func _ready() -> void:
 		boid_data[base + 6] = forward.z
 		boid_data[base + 7] = 0.0
 	_boid_buffer = _device.storage_buffer_create(boid_data.size() * 4, boid_data.to_byte_array())
-	var binary_path: String = svo.out_data.path_join("svo.bin")
-	var binary_file: FileAccess = FileAccess.open(binary_path, FileAccess.READ)
-	if binary_file == null:
-		push_error("Failed to open SVO binary: %s" % binary_path)
-		return RID()
-	var bytes: PackedByteArray = binary_file.get_buffer(binary_file.get_length())
-	binary_file.close()
-	var metadata_path: String = svo.out_data.path_join("svo.json")
-	var metadata_file: FileAccess = FileAccess.open(metadata_path, FileAccess.READ)
-	if metadata_file == null:
-		push_error("Failed to open SVO metadata: %s" % metadata_path)
-		return RID()
-	_svo_metadata = JSON.parse_string(metadata_file.get_as_text())
-	metadata_file.close()
+	_svo_metadata = svo.get_svo_metadata()
+	if _svo_metadata.is_empty():
+		push_error("Failed to load SVO metadata")
+		return
+	var bytes: PackedByteArray = svo.get_svo_binary()
+	if bytes.is_empty():
+		push_error("Failed to load SVO binary")
+		return
 	_svo_buffer = _device.storage_buffer_create(bytes.size(), bytes)
 	_scan_shader = _device.shader_create_from_spirv(SCAN_SHADER.get_spirv())
 	_scan_pipeline = _device.compute_pipeline_create(_scan_shader)
@@ -108,7 +102,7 @@ func _process(delta: float) -> void:
 	push[12] = float(_svo_metadata.root_min_y)
 	push[13] = float(_svo_metadata.root_min_z)
 	push[14] = float(_svo_metadata.root_size)
-	push[15] = float(_svo_metadata.max_depth)
+	push[15] = float(_svo_metadata.max_build_depth)
 	push[16] = sensor_length
 	push[17] = float(sensor_count)
 	push[18] = collision_weight
